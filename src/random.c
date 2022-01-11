@@ -19,7 +19,7 @@ uint32_t pcg32(void)
   return rotr32((uint32_t)(x >> 27), count);
 }
 
-uint64_t get_uint64_t(void)
+uint64_t pcg64(void)
 {
   uint32_t leastSignificantWord = pcg32();
   uint32_t mostSignificantWord = pcg32();

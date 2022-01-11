@@ -1,13 +1,11 @@
+#ifndef UUID67_H
+#define UUID67_H
+
 #include <stdint.h>
 
 typedef uint8_t UUID;
 
 typedef int (*uuid_fptr)(UUID*);
-
-/**
- * 100-ns intervals from Gregorian epoch to Unix epoch.
- */
-int64_t FROM_GREGORIAN_EPOCH_TO_UNIX_EPOCH = 122192928000000000;
 
 /**
  * Give pointer to allocated 128 bits long memory area.
@@ -22,3 +20,5 @@ int uuid6(UUID* uuid);
  * Returns 0 for succesful generation and 1 for failures.
  */
 int uuid7(UUID* uuid);
+
+#endif

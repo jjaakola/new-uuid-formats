@@ -10,24 +10,14 @@
 
 #include <arpa/inet.h>
 
-#include <uuid67.h>
 #include <random.h>
+#include <uuid67.h>
+#include <uuid67format.h>
 
-#ifdef DEBUG
-# define DEBUG_PRINT(x) printf x
-
-void print_uint8_t(uint8_t num)
-{
-   for(int bit=0;bit<(sizeof(uint8_t) * 8); bit++)
-   {
-     DEBUG_PRINT(("%i", num & 0x01));
-      num = num >> 1;
-   }
-}
-
-#else
-# define DEBUG_PRINT(x) do {} while (0)
-#endif
+/**
+ * 100-ns intervals from Gregorian epoch to Unix epoch.
+ */
+int64_t FROM_GREGORIAN_EPOCH_TO_UNIX_EPOCH = 122192928000000000;
 
 int v6_sequence_counter = 0;
 uint64_t last_v6_timestamp;
@@ -90,13 +80,17 @@ int uuid6(UUID *uuid)
   uuid[9] = v6_sequence_counter;
 
   /* node, random */
-  uint64_t random_bits = get_uint64_t();
+  uint64_t random_bits = pcg64();
   uuid[10] = random_bits;
   uuid[11] = random_bits >> 8;
   uuid[12] = random_bits >> 16;
   uuid[13] = random_bits >> 24;
   uuid[14] = random_bits >> 32;
   uuid[15] = random_bits >> 40;
+
+#ifdef DEBUG
+  print_octets(uuid);
+#endif
 
   return 0;
 }
@@ -108,12 +102,12 @@ int uuid7(UUID *uuid)
     return 1;
   }
 
-  /* Timestamp must be in network byte order */
   uint64_t timestamp = get_time_in_nanoseconds(ts);
   if (timestamp == 0) {
     return 1;
   }
 
+  /* Timestamp must be in network byte order */
   /* To network byte order */
   timestamp = htobe64(timestamp);
   /* Drop four top bits to get 60 bits */
@@ -145,7 +139,7 @@ int uuid7(UUID *uuid)
   uuid[8] = 0xA | (v7_sequence_counter >> 8);
   uuid[9] = v7_sequence_counter;
 
-  uint64_t random_bits = get_uint64_t();
+  uint64_t random_bits = pcg64();
   uuid[10] = random_bits;
   uuid[11] = random_bits >> 8;
   uuid[12] = random_bits >> 16;
@@ -154,54 +148,8 @@ int uuid7(UUID *uuid)
   uuid[15] = random_bits >> 40;
 
 #ifdef DEBUG
-  DEBUG_PRINT(("OCTET\tUUID\n"));
-  for (int i=0; i < 16; i++) {
-    DEBUG_PRINT(("%d\t", i));
-    print_uint8_t(uuid[i]);
-    DEBUG_PRINT(("\n"));
-  }
+  print_octets(uuid);
 #endif
 
   return 0;
-}
-
-const char *uuid_fmt_lower = "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x";
-void uuid_string(const UUID *uuid_data, char* out)
-{
-  snprintf(out, sizeof(char) * 37,
-	   uuid_fmt_lower,
-	   uuid_data[0], uuid_data[1],
-	   uuid_data[2], uuid_data[3],
-	   uuid_data[4], uuid_data[5],
-	   uuid_data[6], uuid_data[7],
-	   uuid_data[8], uuid_data[9],
-	   uuid_data[10], uuid_data[11],
-	   uuid_data[12], uuid_data[13],
-	   uuid_data[14], uuid_data[15]);
-}
-
-
-int main(int argc, char** args)
-{
-  pcg32_init(time(NULL));
-
-
-  uuid_fptr uuid_func  = uuid6;
-  if (argc > 1 && strncmp("7", args[1], sizeof(char)) == 0) {
-    uuid_func = uuid7;
-  }
-  
-  for (int i=0; i<10; i++) {
-    UUID *uuid_data = malloc(16);
-    int rc = uuid_func(uuid_data);
-    if (rc == 0) {
-      char *uuids = malloc(37);
-      uuid_string(uuid_data, uuids);
-      printf("%s\n", uuids);
-      free(uuids);
-    } else {
-      fprintf(stderr, "Not good, return code is: %d\n", rc);
-    }
-    if (uuid_data != NULL) free(uuid_data);
-  }
 }
