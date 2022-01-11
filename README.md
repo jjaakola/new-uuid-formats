@@ -1,2 +1,2 @@
 # new-uuid-formats
-New UUID formats, UUIDv7 and UUIDv7
+New UUID formats, UUIDv6 and UUIDv7
