@@ -1,14 +1,8 @@
 #define _GNU_SOURCE
 
-#include <endian.h>
 #include <inttypes.h>
-#include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <time.h>
-
-#include <arpa/inet.h>
 
 #include <random.h>
 #include <uuid67.h>
@@ -32,6 +26,27 @@ uint64_t get_time_in_nanoseconds(struct timespec *ts)
   }
   return (uint64_t)(ts->tv_sec) * (uint64_t)1000000000 + (uint64_t)(ts->tv_nsec);
 }
+
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+void tobe64(uint64_t *out, uint64_t in)
+{
+  uint8_t *tmp = (uint8_t*) out;
+  tmp[0] = in >> 56 & 0xFF;
+  tmp[1] = in >> 48 & 0xFF;
+  tmp[2] = in >> 40 & 0xFF;
+  tmp[3] = in >> 32 & 0xFF;
+  tmp[4] = in >> 24 & 0xFF;
+  tmp[5] = in >> 16 & 0xFF;
+  tmp[6] = in >>  8 & 0xFF;
+  tmp[7] = in >>  0 & 0xFF;
+}
+#else
+void tobe64(uint64_t *out, uint64_t in)
+{
+  out = &in;
+}
+#endif
+
 
 int uuid6(UUID *uuid)
 {
@@ -103,15 +118,16 @@ int uuid7(UUID *uuid)
     return 1;
   }
 
-  uint64_t timestamp = get_time_in_nanoseconds(ts);
-  if (timestamp == 0) {
+  uint64_t nanoseconds = get_time_in_nanoseconds(ts);
+  if (nanoseconds == 0) {
     return 1;
   }
   free(ts);
 
   /* Timestamp must be in network byte order */
   /* To network byte order */
-  timestamp = htobe64(timestamp);
+  uint64_t timestamp;
+  tobe64(&timestamp, nanoseconds);
 
   if (timestamp != 0 && timestamp <= last_v7_timestamp) {
     v7_sequence_counter++;
