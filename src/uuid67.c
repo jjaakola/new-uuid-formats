@@ -106,12 +106,9 @@ int uuid7(UUID *uuid)
   if (timestamp == 0) {
     return 1;
   }
-
   /* Timestamp must be in network byte order */
   /* To network byte order */
   timestamp = htobe64(timestamp);
-  /* Drop four top bits to get 60 bits */
-  timestamp = timestamp << 4;
 
   if (timestamp != 0 && timestamp <= last_v7_timestamp) {
     v7_sequence_counter++;
