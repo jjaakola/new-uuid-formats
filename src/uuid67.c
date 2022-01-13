@@ -45,6 +45,7 @@ int uuid6(UUID *uuid)
   if (nanoseconds == 0) {
     return 1;
   }
+  free(ts);
 
   uint64_t timestamp = (nanoseconds / 100);
   timestamp = timestamp + FROM_GREGORIAN_EPOCH_TO_UNIX_EPOCH;
@@ -69,7 +70,7 @@ int uuid6(UUID *uuid)
   uuid[5] = timestamp >> 16;
 
   /* time_low_and_version */
-  uuid[6] |= timestamp >> 8;
+  uuid[6] = 0xFF & timestamp >> 8;
   uuid[7] = timestamp;
 
   /* clk_seq_hi_res and variant 10 */
@@ -106,6 +107,8 @@ int uuid7(UUID *uuid)
   if (timestamp == 0) {
     return 1;
   }
+  free(ts);
+
   /* Timestamp must be in network byte order */
   /* To network byte order */
   timestamp = htobe64(timestamp);
