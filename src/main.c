@@ -1,17 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 #include <uuid67.h>
 #include <uuid67format.h>
-#include <random.h>
 
 int main(int argc, char** args)
 {
-  pcg32_init(time(NULL));
-
-
   uuid_fptr uuid_func  = uuid6;
   if (argc > 1 && strncmp("7", args[1], sizeof(char)) == 0) {
     uuid_func = uuid7;
@@ -20,6 +15,11 @@ int main(int argc, char** args)
   UUID *uuid_data = malloc(16);
   int rc = uuid_func(uuid_data);
   if (rc == 0) {
+
+#ifdef DEBUG
+    print_octets(uuid_data);
+#endif
+
     char *uuids = malloc(37);
     uuid_string(uuid_data, uuids);
     printf("%s\n", uuids);

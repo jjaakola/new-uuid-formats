@@ -1,12 +1,11 @@
 #define _GNU_SOURCE
 
-#include <inttypes.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
 
 #include <random.h>
 #include <uuid67.h>
-#include <uuid67format.h>
 
 /**
  * 100-ns intervals from Gregorian epoch to Unix epoch.
@@ -14,21 +13,21 @@
 int64_t FROM_GREGORIAN_EPOCH_TO_UNIX_EPOCH = 122192928000000000;
 
 int v6_sequence_counter = 0;
-uint64_t last_v6_timestamp;
+int64_t last_v6_timestamp;
 
 int v7_sequence_counter = 0;
-uint64_t last_v7_timestamp;
+int64_t last_v7_timestamp;
 
-uint64_t get_time_in_nanoseconds(struct timespec *ts)
+int64_t get_time_in_nanoseconds(struct timespec *ts)
 {
   if (clock_gettime(CLOCK_REALTIME, ts)) {
     return 0;
   }
-  return (uint64_t)(ts->tv_sec) * (uint64_t)1000000000 + (uint64_t)(ts->tv_nsec);
+  return (int64_t)(ts->tv_sec) * (int64_t)1000000000 + (int64_t)(ts->tv_nsec);
 }
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-void tobe64(uint64_t *out, uint64_t in)
+void tobe64(int64_t *out, int64_t in)
 {
   uint8_t *tmp = (uint8_t*) out;
   tmp[0] = in >> 56 & 0xFF;
@@ -41,7 +40,7 @@ void tobe64(uint64_t *out, uint64_t in)
   tmp[7] = in >>  0 & 0xFF;
 }
 #else
-void tobe64(uint64_t *out, uint64_t in)
+void tobe64(int64_t *out, int64_t in)
 {
   out = &in;
 }
@@ -56,13 +55,13 @@ int uuid6(UUID *uuid)
     return 1;
   }
 
-  uint64_t nanoseconds = get_time_in_nanoseconds(ts);
+  int64_t nanoseconds = get_time_in_nanoseconds(ts);
   if (nanoseconds == 0) {
     return 1;
   }
   free(ts);
 
-  uint64_t timestamp = (nanoseconds / 100);
+  int64_t timestamp = (nanoseconds / 100);
   timestamp = timestamp + FROM_GREGORIAN_EPOCH_TO_UNIX_EPOCH;
   /* Drop four top bits to get 60 bits and add version 6 */
   timestamp = ((timestamp << 4) & 0xFFFFFFFFFFFF0000) | (timestamp & 0x0FFF) | 0x6000;
@@ -96,17 +95,15 @@ int uuid6(UUID *uuid)
   uuid[9] = v6_sequence_counter;
 
   /* node, random */
-  uint64_t random_bits = pcg64();
+  uint64_t random_bits = 0;
+  if (random64(&random_bits)) return 1;
+
   uuid[10] = random_bits;
   uuid[11] = random_bits >> 8;
   uuid[12] = random_bits >> 16;
   uuid[13] = random_bits >> 24;
   uuid[14] = random_bits >> 32;
   uuid[15] = random_bits >> 40;
-
-#ifdef DEBUG
-  print_octets(uuid);
-#endif
 
   return 0;
 }
@@ -118,7 +115,7 @@ int uuid7(UUID *uuid)
     return 1;
   }
 
-  uint64_t nanoseconds = get_time_in_nanoseconds(ts);
+  int64_t nanoseconds = get_time_in_nanoseconds(ts);
   if (nanoseconds == 0) {
     return 1;
   }
@@ -126,7 +123,7 @@ int uuid7(UUID *uuid)
 
   /* Timestamp must be in network byte order */
   /* To network byte order */
-  uint64_t timestamp;
+  int64_t timestamp;
   tobe64(&timestamp, nanoseconds);
 
   if (timestamp != 0 && timestamp <= last_v7_timestamp) {
@@ -147,7 +144,7 @@ int uuid7(UUID *uuid)
   uuid[5] = timestamp >> 40;
 
   /* ver and subsec_b */
-  uint16_t ver_subsec_b = (0x7 << 4) | ((timestamp >> 44) & 0x0F);
+  int16_t ver_subsec_b = (0x7 << 4) | ((timestamp >> 44) & 0x0F);
   uuid[6] = ver_subsec_b;
   uuid[7] = timestamp >> 52;
 
@@ -155,17 +152,15 @@ int uuid7(UUID *uuid)
   uuid[8] = 0xA | (v7_sequence_counter >> 8);
   uuid[9] = v7_sequence_counter;
 
-  uint64_t random_bits = pcg64();
+  uint64_t random_bits = 0;
+  if (random64(&random_bits)) return 1;
+
   uuid[10] = random_bits;
   uuid[11] = random_bits >> 8;
   uuid[12] = random_bits >> 16;
   uuid[13] = random_bits >> 24;
   uuid[14] = random_bits >> 32;
   uuid[15] = random_bits >> 40;
-
-#ifdef DEBUG
-  print_octets(uuid);
-#endif
 
   return 0;
 }
