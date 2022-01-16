@@ -8,6 +8,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DI
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${CMAKE_CURRENT_BINARY_DIR}/include/)
 
+add_compile_definitions(_XOPEN_SOURCE=500)
+
 # Set library file
 file(GLOB LIB_SOURCES ./src/uuid67.c)
 
