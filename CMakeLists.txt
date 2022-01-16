@@ -19,7 +19,8 @@ file(GLOB MAIN_SOURCES ./src/*.c)
 add_compile_options(-Wall -Wextra -Werror -Wpedantic -ansi -std=c99)
 
 IF(CMAKE_BUILD_TYPE MATCHES RELEASE)
-  add_compile_options(-O2)
+  add_compile_options(-O2 -ffunction-sections -fdata-sections)
+  add_link_options(-s -Wl,--gc-sections)
 ENDIF(CMAKE_BUILD_TYPE MATCHES RELEASE)
 
 IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
