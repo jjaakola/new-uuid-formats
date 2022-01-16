@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <uuid67.h>
-#include <uuid67format.h>
+#include "uuid67.h"
+#include "uuid67format.h"
 
 int main(int argc, char** args)
 {

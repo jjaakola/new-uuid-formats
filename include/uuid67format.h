@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include <uuid67.h>
+#include "uuid67.h"
 
 void uuid_string(const UUID *uuid_data, char* out);
 

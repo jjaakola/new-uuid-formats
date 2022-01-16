@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <uuid67format.h>
+#include "uuid67format.h"
 
 const char *uuid_fmt_lower = "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x";
 void uuid_string(const UUID *uuid_data, char* out)

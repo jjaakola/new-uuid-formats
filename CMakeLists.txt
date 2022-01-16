@@ -2,14 +2,11 @@ cmake_minimum_required(VERSION 3.10)
 
 project(uuid-new-formats)
 
-include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
+include(CheckIncludeFiles)
+check_include_files(sys/random.h HAVE_SYSRANDOM_H)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/config.h)
 
-# Select and set random files
-IF(UNIX)
-  file(GLOB RANDOM_SOURCES ./src/linux-random/*.c)
-ELSE()
-  file(GLOB RANDOM_SOURCES ./src/pcg32-random/*.c)
-ENDIF()
+include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${CMAKE_CURRENT_BINARY_DIR}/include/)
 
 # Set library file
 file(GLOB LIB_SOURCES ./src/uuid67.c)

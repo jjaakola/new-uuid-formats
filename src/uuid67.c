@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include <random.h>
-#include <uuid67.h>
+#include "random.h"
+#include "uuid67.h"
 
 /**
  * 100-ns intervals from Gregorian epoch to Unix epoch.
