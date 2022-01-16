@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef UUID67_FORMAT_H
 #define UUID67_FORMAT_H
 
