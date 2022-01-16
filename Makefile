@@ -6,12 +6,16 @@ build:
 	mkdir -p build
 
 .PHONY := build-debug
-build-debug:
-	cd build && cmake -DCMAKE_BUILD_TYPE=DEBUG && make && cd ..
+build-debug: build
+	cd build && cmake -DCMAKE_BUILD_TYPE=DEBUG .. && make && cd ..
 
 .PHONY := build-release
-build-release:
-	cd build && cmake -DCMAKE_BUILD_TYPE=RELEASE && make && cd ..
+build-release: build
+	cd build && cmake -DCMAKE_BUILD_TYPE=RELEASE .. && make && cd ..
+
+.PHONY := build-clang-tidy
+build-clang-tidy: build
+	cd build && cmake -DCMAKE_BUILD_TYPE=DEBUG -DCLANG_TIDY_ON=1 .. && make && cd ..
 
 .PHONY := all
 all: build-release

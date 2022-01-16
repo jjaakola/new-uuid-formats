@@ -8,7 +8,7 @@
 /**
  * 100-ns intervals from Gregorian epoch to Unix epoch.
  */
-int64_t FROM_GREGORIAN_EPOCH_TO_UNIX_EPOCH = 122192928000000000;
+const int64_t FROM_GREGORIAN_EPOCH_TO_UNIX_EPOCH = 122192928000000000;
 
 int v6_sequence_counter = 0;
 int64_t last_v6_timestamp;
@@ -48,6 +48,7 @@ int uuid6(UUID *uuid) {
 
     int64_t nanoseconds = get_time_in_nanoseconds(ts);
     if (nanoseconds == 0) {
+        free(ts);
         return 1;
     }
     free(ts);
@@ -88,8 +89,9 @@ int uuid6(UUID *uuid) {
 
     /* node, random */
     uint64_t random_bits = 0;
-    if (random64(&random_bits))
+    if (random64(&random_bits)) {
         return 1;
+    }
 
     uuid[10] = random_bits;
     uuid[11] = random_bits >> 8;
@@ -109,6 +111,7 @@ int uuid7(UUID *uuid) {
 
     int64_t nanoseconds = get_time_in_nanoseconds(ts);
     if (nanoseconds == 0) {
+        free(ts);
         return 1;
     }
     free(ts);
@@ -145,8 +148,9 @@ int uuid7(UUID *uuid) {
     uuid[9] = v7_sequence_counter;
 
     uint64_t random_bits = 0;
-    if (random64(&random_bits))
+    if (random64(&random_bits)) {
         return 1;
+    }
 
     uuid[10] = random_bits;
     uuid[11] = random_bits >> 8;

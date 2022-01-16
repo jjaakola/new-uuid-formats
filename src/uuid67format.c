@@ -15,7 +15,7 @@ void uuid_string(const UUID *uuid_data, char *out) {
 
 #ifdef DEBUG
 void print_uint8_t(uint8_t num) {
-    for (uint8_t bit = 0; bit < (sizeof(uint8_t) * 8); bit++) {
+    for (uint8_t bit = 0; bit < (uint8_t)(sizeof(uint8_t) * 8); bit++) {
         printf("%i", num & 0x01);
         num = num >> 1;
     }

@@ -26,10 +26,14 @@ IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
   add_compile_options("$<$<CONFIG:DEBUG>:-DDEBUG>")
 ENDIF(CMAKE_BUILD_TYPE MATCHES DEBUG)
 
+# Add clang-tidy
+IF(CLANG_TIDY_ON)
+  set(CMAKE_C_CLANG_TIDY clang-tidy -checks=-*,bugprone-*,clang-analyzer-*,performance-*,portability-*)
+ENDIF(CLANG_TIDY_ON)
+
 # Add builded library and executable
 add_executable(uuid-new-formats ${MAIN_SOURCES} ${RANDOM_SOURCES})
 add_library(uuid-new-formats-lib SHARED ${LIB_SOURCES} ${RANDOM_SOURCES})
 
 target_include_directories(uuid-new-formats PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 target_include_directories(uuid-new-formats-lib PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
-
