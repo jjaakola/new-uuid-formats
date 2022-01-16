@@ -5,7 +5,7 @@
 
 #include "uuid67.h"
 
-void uuid_string(const UUID *uuid_data, char* out);
+void uuid_string(const UUID *uuid_data, char *out);
 
 #ifdef DEBUG
 void print_uint8_t(uint8_t num);
